@@ -12,5 +12,13 @@ import requests
 
 load_dotenv()
 
-abc = os.getenv('USER_ID')
-print(abc)
+LATEST_API_VERSION = "v16.0"
+PAGE_ACCESS_TOKEN = os.getenv('PAGE_ACCESS_TOKEN')
+CONVERSATION_ID = os.getenv('CONVERSATION_ID')
+
+
+arguments = {"fields": "messages{message}", "access_token": PAGE_ACCESS_TOKEN}
+r = requests.get(f"https://graph.facebook.com/{LATEST_API_VERSION}/{CONVERSATION_ID}",
+                 params=arguments)
+
+print(r.json())
