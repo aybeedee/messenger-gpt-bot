@@ -5,6 +5,6 @@ credit for ora.sh api: https://github.com/xtekky
 
 MVP Steps:
 - [X] locally hosted gpt
-- [ ] locally hosted gpt that can respond in urdu
+- [X] locally hosted gpt that can respond in urdu
 - [ ] implementing facebook api
 - [ ] hosting online and testing
