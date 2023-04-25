@@ -19,9 +19,9 @@ CONVERSATION_ID = os.getenv("CONVERSATION_ID")
 # print(r.json())
 
 arguments = {
-    "recipient": {"id": USER_ID}, 
+    "recipient": f"{{id: {USER_ID}}}", 
     "messaging_type": "RESPONSE", 
-    "message": {"text": "You finally did it"}, 
+    "message": f"{{text: \"ok\"}}",
     "access_token": PAGE_ACCESS_TOKEN
     }
 
