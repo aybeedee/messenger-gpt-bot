@@ -5,100 +5,105 @@ import time
 import ora
 import asyncio
 
-load_dotenv()
-
-USER_ID = os.getenv("USER_ID")
-PAGE_ID = os.getenv("PAGE_ID")
-LATEST_API_VERSION = "v16.0"
-PAGE_ACCESS_TOKEN = os.getenv("PAGE_ACCESS_TOKEN")
-CONVERSATION_ID = os.getenv("CONVERSATION_ID")
-
-model = ora.CompletionModel.create(
-    system_prompt = 'You are ChatGPT, a large language model trained by OpenAI. Answer as concisely as possible. Mujhse Urdu mei baat karain please',
-    description   = 'ChatGPT Openai Language Model',
-    name          = 'gpt-3.5')
-
-# init conversation (will give you a conversationId)
-init = ora.Completion.create(
-    model  = model,
-    prompt = 'salam')
-
-print(init.completion.choices[0].text)
-
-async def gptQuery():
+#function for gpt query calls and awaiting gpt's response
+async def gptQuery(message):
     
     response = ora.Completion.create(
         model  = model,
-        prompt = prompt,
-        includeHistory = True, 
+        prompt = message,
+        includeHistory = True,
         conversationId = init.id)
 
     return response.completion.choices[0].text
 
-async def gptQueryAsync():
-    
-    answer = await asyncio.gather(gptQuery())
+#helper function to relay async call for making gpt query
+async def gptQueryAsync(message):
+
+    answer = await asyncio.gather(gptQuery(message))
     return answer
 
-print("a")
-print("b")
-asyncio.run(bar())
-print("c")
-print("d")
-print("e")
+#main functionality starts
+if __name__ == '__main__':
 
-arguments = {"fields": "messages{message}", "access_token": PAGE_ACCESS_TOKEN}
-res = requests.get(f"https://graph.facebook.com/{LATEST_API_VERSION}/{CONVERSATION_ID}",
-                params=arguments)
+    #loading environment variables
+    load_dotenv()
 
-res_json = res.json()
+    USER_ID = os.getenv("USER_ID")
+    PAGE_ID = os.getenv("PAGE_ID")
+    LATEST_API_VERSION = "v16.0"
+    PAGE_ACCESS_TOKEN = os.getenv("PAGE_ACCESS_TOKEN")
+    CONVERSATION_ID = os.getenv("CONVERSATION_ID")
 
-message_count = len(res_json["messages"]["data"])
+    #initiating model
+    model = ora.CompletionModel.create(
+        system_prompt = 'You are ChatGPT, a large language model trained by OpenAI. Answer as concisely as possible. Mujhse Urdu mei baat karain please',
+        description   = 'ChatGPT Openai Language Model',
+        name          = 'gpt-3.5')
 
-while(True):
+    # init conversation (will give you a conversationId)
+    init = ora.Completion.create(
+        model  = model,
+        prompt = 'salam')
 
-    print("\ncurrent message count = ", message_count)
+    #logging first gpt response to terminal
+    print(init.completion.choices[0].text)
 
-    time.sleep(5)
-
+    #arguments
+    getArgs = {"fields": "messages{message}", "access_token": PAGE_ACCESS_TOKEN}
     res = requests.get(f"https://graph.facebook.com/{LATEST_API_VERSION}/{CONVERSATION_ID}",
-                    params=arguments)
-    
+                    params=getArgs)
+
     res_json = res.json()
 
-    n = len(res_json["messages"]["data"])
+    message_count = len(res_json["messages"]["data"])
 
-    print("new message count = ", n)
+    while(True):
 
-    if (n > message_count):
-        print(res_json["messages"]["data"][0]["message"])
-        message_count = n
+        print("\ncurrent message count = ", message_count)
 
-# arguments = {
-#     "recipient": f"{{id: {USER_ID}}}", 
-#     "messaging_type": "RESPONSE", 
-#     "message": f"{{text: \"ok\"}}",
-#     "access_token": PAGE_ACCESS_TOKEN
-#     }
+        time.sleep(5)
 
-# r = requests.post(f"https://graph.facebook.com/{LATEST_API_VERSION}/{PAGE_ID}/messages",
-#                  params=arguments)
+        res = requests.get(f"https://graph.facebook.com/{LATEST_API_VERSION}/{CONVERSATION_ID}",
+                        params=getArgs)
+        
+        res_json = res.json()
 
-# print(r.json())
+        n = len(res_json["messages"]["data"])
+
+        print("new message count = ", n)
+
+        if (n > message_count):
+
+            message_count = n
+            message = res_json["messages"]["data"][0]["message"]
+
+            answer = asyncio.run(gptQueryAsync(message))
+
+            postArgs = {
+                "recipient": f"{{id: {USER_ID}}}", 
+                "messaging_type": "RESPONSE", 
+                "message": f"{{text: \"ok\"}}",
+                "access_token": PAGE_ACCESS_TOKEN
+                }
+
+            res = requests.post(f"https://graph.facebook.com/{LATEST_API_VERSION}/{PAGE_ID}/messages",
+                     params=postArgs)
+
+            print(res.json())
 
 
-#main loop
-    #GET message
-    #input message to gpt
-    #gpt generates answer
-    #POST answer
+    #main loop
+        #GET message
+        #input message to gpt
+        #gpt generates answer
+        #POST answer
 
 
-#while(True):
-    #make get request
-    #set count of messages
-    #wait for a while
-    #make request again
-    #if count of messages has increased
-        #store most recent message
-        #input to 
+    #while(True):
+        #make get request
+        #set count of messages
+        #wait for a while
+        #make request again
+        #if count of messages has increased
+            #store most recent message
+            #input to 
