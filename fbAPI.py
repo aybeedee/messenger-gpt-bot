@@ -23,7 +23,7 @@ async def gptQueryAsync(message):
     return answer
 
 #main functionality starts
-if __name__ == '__main__':
+if __name__ == "__main__":
 
     #loading environment variables
     load_dotenv()
@@ -48,41 +48,54 @@ if __name__ == '__main__':
     #logging first gpt response to terminal
     print(init.completion.choices[0].text)
 
-    #arguments
+    #arguments for get request
     getArgs = {"fields": "messages{message}", "access_token": PAGE_ACCESS_TOKEN}
     res = requests.get(f"https://graph.facebook.com/{LATEST_API_VERSION}/{CONVERSATION_ID}",
                     params=getArgs)
 
+    #getting current no. of messages in the conversation
     res_json = res.json()
 
     message_count = len(res_json["messages"]["data"])
 
+    #after a time interval, get request is made, no of messages in the conversation are fetched
+    #if they are greater (meaning user typed a new prompt), gpt query is made and answer is posted
     while(True):
 
         print("\ncurrent message count = ", message_count)
 
+        #time interval to not spam get requests
         time.sleep(5)
 
+        #get request for messages in conversation
         res = requests.get(f"https://graph.facebook.com/{LATEST_API_VERSION}/{CONVERSATION_ID}",
                         params=getArgs)
         
         res_json = res.json()
 
+        #current no of messages in conversation
         n = len(res_json["messages"]["data"])
 
         print("new message count = ", n)
 
+        #if new message has been received
         if (n > message_count):
 
+            #message count updated
             message_count = n
+
+            #message extracted
             message = res_json["messages"]["data"][0]["message"]
 
+            #gpt query ran
             answer = asyncio.run(gptQueryAsync(message))
 
+            #post request arguments set
             postArgs = {
                 "recipient": f"{{id: {USER_ID}}}", 
                 "messaging_type": "RESPONSE", 
-                "message": f"{{text: \"ok\"}}",
+                #"message": f"{{text: \"ok\"}}",
+                "message": f"{{text: {answer}}}",
                 "access_token": PAGE_ACCESS_TOKEN
                 }
 
