@@ -38,9 +38,9 @@ if __name__ == "__main__":
 
     #initiating model
     response = you.Completion.create(
-        prompt="hello world",
+        prompt="mujhse urdu mei baat karay please",
         detailed=False,
-        include_links=False, )
+        include_links=False)
     
     chat = []
 
@@ -91,7 +91,7 @@ if __name__ == "__main__":
                 "recipient": f"{{id: {USER_ID}}}", 
                 "messaging_type": "RESPONSE", 
                 #"message": f"{{text: \"ok\"}}",
-                "message": f"{{text: {answer}}}",
+                "message": f"{{text: \"{answer}\"}}",
                 "access_token": PAGE_ACCESS_TOKEN
                 }
 
