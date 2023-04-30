@@ -1,7 +1,7 @@
 # messenger-gpt-bot
-A chatbot for facebook messenger using an open-source reverse-engineered gpt api - built using Python
+A chatbot for facebook messenger using open-source gpt apis - built using Python
 
-credit for api: https://github.com/xtekky
+credit for api currently in use: https://github.com/xtekky
 
 MVP Steps:
 - [X] locally hosted gpt

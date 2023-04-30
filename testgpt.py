@@ -1,21 +1,33 @@
-# import quora (poe) package
-from gpt4free import quora
+from gpt4free import you
 
-# create account
-# make sure to set enable_bot_creation to True
-token = quora.Account.create(logging=True, enable_bot_creation=True)
+# simple request with links and details
+response = you.Completion.create(
+    prompt="hello world",
+    detailed=False,
+    include_links=False, )
 
-model = quora.Model.create(
-    token=token,
-    model='gpt-3.5-turbo',  # or claude-instant-v1.0
-    system_prompt='you are ChatGPT a large language model ...'
-)
+print(response.dict())
 
-print(model.name)  # gptx....
+# {
+#     "response": "...",
+#     "links": [...],
+#     "extra": {...},
+#         "slots": {...}
+#     }
+# }
 
-# streaming response
-for response in quora.StreamingCompletion.create(
-        custom_model=model.name,
-        prompt='hello world',
-        token=token):
-    print(response.completion.choices[0].text)
+# chatbot
+
+chat = []
+
+while True:
+    prompt = input("You: ")
+    if prompt == 'q':
+        break
+    response = you.Completion.create(
+        prompt=prompt,
+        chat=chat)
+
+    print("Bot:", response.text)
+
+    chat.append({"question": prompt, "answer": response.text})

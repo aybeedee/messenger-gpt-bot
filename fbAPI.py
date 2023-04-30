@@ -2,19 +2,21 @@ import os
 from dotenv import load_dotenv
 import requests
 import time
-import ora
 import asyncio
+from gpt4free import you
 
 #function for gpt query calls and awaiting gpt's response
 async def gptQuery(message):
-    
-    response = ora.Completion.create(
-        model  = model,
-        prompt = message,
-        includeHistory = True,
-        conversationId = init.id)
 
-    return response.completion.choices[0].text
+    response = you.Completion.create(
+        prompt= message,
+        chat=chat)
+
+    answer = response.text 
+
+    chat.append({"question": message, "answer": answer})
+
+    return answer
 
 #helper function to relay async call for making gpt query
 async def gptQueryAsync(message):
@@ -35,18 +37,12 @@ if __name__ == "__main__":
     CONVERSATION_ID = os.getenv("CONVERSATION_ID")
 
     #initiating model
-    model = ora.CompletionModel.create(
-        system_prompt = 'You are ChatGPT, a large language model trained by OpenAI. Answer as concisely as possible. Mujhse Urdu mei baat karain please',
-        description   = 'ChatGPT Openai Language Model',
-        name          = 'gpt-3.5')
-
-    # init conversation (will give you a conversationId)
-    init = ora.Completion.create(
-        model  = model,
-        prompt = 'salam')
-
-    #logging first gpt response to terminal
-    print(init.completion.choices[0].text)
+    response = you.Completion.create(
+        prompt="hello world",
+        detailed=False,
+        include_links=False, )
+    
+    chat = []
 
     #arguments for get request
     getArgs = {"fields": "messages{message}", "access_token": PAGE_ACCESS_TOKEN}
@@ -119,4 +115,4 @@ if __name__ == "__main__":
         #make request again
         #if count of messages has increased
             #store most recent message
-            #input to 
+            #input to gpt and get answer 
