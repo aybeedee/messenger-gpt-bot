@@ -38,12 +38,14 @@ if __name__ == "__main__":
 
     #initiating model
     response = you.Completion.create(
-        prompt="mujhse urdu mei baat karay please",
+        prompt="Reply to me ONLY in Urdu langauge. Don't speak english. Start doing so from the following prompt: How are you?",
         detailed=False,
         include_links=False)
     
     chat = []
 
+    print(response.text)
+          
     #arguments for get request
     getArgs = {"fields": "messages{message}", "access_token": PAGE_ACCESS_TOKEN}
     res = requests.get(f"https://graph.facebook.com/{LATEST_API_VERSION}/{CONVERSATION_ID}",
@@ -52,13 +54,23 @@ if __name__ == "__main__":
     #getting current no. of messages in the conversation
     res_json = res.json()
 
-    message_count = len(res_json["messages"]["data"])
+    #new check if recent message is same logic
+    latestMessage = res_json["messages"]["data"][0]["message"]
 
+    #old message count logic
+    #message_count = len(res_json["messages"]["data"])
+
+    #loop iteration
+    i = 1
+
+    #new logic: instead of message count, compare to check if last message in data has changed
     #after a time interval, get request is made, no of messages in the conversation are fetched
     #if they are greater (meaning user typed a new prompt), gpt query is made and answer is posted
     while(True):
 
-        print("\ncurrent message count = ", message_count)
+        print("-------------------------------------------------------------------")
+        print("ITERATION:", i)
+        print("\nlatest message = ", latestMessage)
 
         #time interval to not spam get requests
         time.sleep(5)
@@ -69,22 +81,32 @@ if __name__ == "__main__":
         
         res_json = res.json()
 
-        #current no of messages in conversation
-        n = len(res_json["messages"]["data"])
+        #new check if recent message is same logic
+        currMessage = res_json["messages"]["data"][0]["message"]
 
-        print("new message count = ", n)
+        #old message count logic
+        #current no of messages in conversation
+        #n = len(res_json["messages"]["data"])
+
+        print("current last message = ", currMessage)
 
         #if new message has been received
-        if (n > message_count):
+        if (latestMessage != currMessage):
 
-            #message count updated
-            message_count = n
-
-            #message extracted
-            message = res_json["messages"]["data"][0]["message"]
+            print("---------------------------ENTERED LOOP----------------------------")
 
             #gpt query ran
-            answer = asyncio.run(gptQueryAsync(message))
+            gptRes = asyncio.run(gptQueryAsync(currMessage))
+            answer = gptRes[0]
+            print("GPT's Response: ", answer)
+
+            answer = answer.replace('"','')
+            answer = answer.replace('\'','')
+            answer = answer.replace('\\','')
+            answer = answer.replace('/','')
+
+            #set latest message (gpt's response)
+            latestMessage = answer
 
             #post request arguments set
             postArgs = {
@@ -98,7 +120,12 @@ if __name__ == "__main__":
             res = requests.post(f"https://graph.facebook.com/{LATEST_API_VERSION}/{PAGE_ID}/messages",
                      params=postArgs)
 
-            print(res.json())
+            time.sleep(2)
+
+            print("Facebook post response: ", res.json())
+
+        i += 1
+        print("-------------------------------------------------------------------")
 
 
     #main loop

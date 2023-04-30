@@ -1,7 +1,5 @@
-def foo():
-    x = y + 5
-    return x
-
-if __name__ == "__main__":
-    y = 10
-    print(foo())
+l= ['apple "hitt" the'' fan']
+answer = l[0]
+answer = answer.replace('"','')
+answer = answer.replace('\'','')
+print(answer)

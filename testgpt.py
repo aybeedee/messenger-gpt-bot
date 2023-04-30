@@ -2,7 +2,7 @@ from gpt4free import you
 
 # simple request with links and details
 response = you.Completion.create(
-    prompt="hello world",
+    prompt="Reply to me ONLY in Urdu langauge. Don't speak english. Start doing so from the following prompt: How are you?",
     detailed=False,
     include_links=False, )
 
