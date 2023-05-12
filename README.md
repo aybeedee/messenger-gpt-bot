@@ -6,5 +6,5 @@ credit for api currently in use: https://github.com/xtekky
 MVP Steps:
 - [X] locally hosted gpt
 - [X] locally hosted gpt that can respond in urdu
-- [ ] implementing facebook api
+- [X] implementing facebook api
 - [ ] hosting online and testing
